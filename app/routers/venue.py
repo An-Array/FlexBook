@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 
-@router.post("/venues", response_model=venue_schemas.VenueOut) # add role based access control -only owners and admins can post new venues
+@router.post("/venues", response_model=venue_schemas.VenueOut) # RBAC -only OWNERS and ADMINS can add venues
 def create_venue(venue: venue_schemas.VenueBase, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
   new_venue = models.Venue(owner_id=current_user.id, **venue.model_dump() )
   print(new_venue.name, new_venue.owner_id)
