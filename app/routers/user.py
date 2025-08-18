@@ -45,7 +45,7 @@ def login(user_credentials: user_schemas.UserLogin, db: Session = Depends(get_db
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect Password!")
   
   #Token Creation After User Authorized
-  access_token = oauth2.create_access_token(data={"user_id": user.id})
+  access_token = oauth2.create_access_token(data={"user_id": user.id, "role": user.role})
   return {"access_token": access_token, "token_type": "bearer"}
 
 # Get all users -"user-role": Limited Data {Profile Data of current User} -"admin-role": Complete Data

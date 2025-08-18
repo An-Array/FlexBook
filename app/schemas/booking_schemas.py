@@ -3,6 +3,7 @@ from datetime import datetime
 
 
 class Booking(BaseModel):
+  venue_id: int
   start_time: datetime
   end_time: datetime
 

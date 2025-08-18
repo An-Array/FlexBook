@@ -15,16 +15,16 @@ router = APIRouter(
 
 
 
-@router.post("/{id}", response_model=booking_schemas.BookingOutId, status_code=status.HTTP_201_CREATED)
-def create_booking(id: int, booking: booking_schemas.Booking,  db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-  booking_db = models.Booking(venue_id = id, customer_id = current_user.id, **booking.model_dump())
+@router.post("/", response_model=booking_schemas.BookingOutId, status_code=status.HTTP_201_CREATED)
+def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+  booking_db = models.Booking(customer_id = current_user.id, **booking.model_dump())
   print(booking_db)
   #-- Checks if user is trying to Book in PAST
   if booking.start_time.astimezone(timezone.utc) < datetime.now(timezone.utc):
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot Do Booking for the Past!")
   #-- Booking Conflict Checker 
   print(booking)
-  if services.booking_conflict(db, id, booking):
+  if services.booking_conflict(db, booking.venue_id, booking):
     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Venue Not Available for the given Time Period!")
   
   db.add(booking_db)
