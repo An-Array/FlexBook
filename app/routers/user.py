@@ -14,6 +14,9 @@ router = APIRouter(
 # User Signup - Registeration, Password Hashing, Account Creation
 @router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=user_schemas.UserOut)
 def create_user(user: user_schemas.UserCreate, db: Session = Depends(get_db)):
+  user_db = db.query(models.User).filter(models.User.email == user.email).first()
+  if user_db is not None:
+    raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"User with {user.email} already Exists!")
   hashed_password = utils.hash(user.password)
   user.password = hashed_password
   new_user = models.User(email=user.email, password=user.password)
