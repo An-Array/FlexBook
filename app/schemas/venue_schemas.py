@@ -8,9 +8,14 @@ class VenueBase(BaseModel):
 class VenueCreate(VenueBase):
   pass
 
+class VenueUpdate(BaseModel):
+  name: str | None = None
+  owner_id: int | None = None
+
 class VenueOut(BaseModel):
   id: int
   name: str
+  owner_id: int
   
   model_config = ConfigDict(from_attributes=True)
 

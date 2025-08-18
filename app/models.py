@@ -47,4 +47,4 @@ class Booking(Base):
 
 
   def __repr__(self):
-    return  f"<Booking(booking_id={self.id}, start_time={self.start_time},end_time={self.end_time}, customer_id={self.customer_id},venue_id={self.venue_id})>"
+    return  f"<Booking(booking_id={self.id}, start_time={self.start_time}, end_time={self.end_time}, customer_id={self.customer_id},venue_id={self.venue_id})>"

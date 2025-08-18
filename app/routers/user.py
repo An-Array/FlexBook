@@ -95,6 +95,7 @@ def delete_user(id: int, db:Session = Depends(get_db), current_user: int = Depen
   if not deletion_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user_id: {id} Doesn't Exist!")
   # user is authorized to delete his account only
+  print(deletion_user.id, current_user.id)
   if deletion_user.id != current_user.id:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
   print(deletion_user)
