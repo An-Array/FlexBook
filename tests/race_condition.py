@@ -27,7 +27,7 @@ class BookingUser(HttpUser):
         self.username, self.password = random.choice(USERS)  # pick a unique user for each locust instance
 
         response = self.client.post(
-            "/login",  # adjust to your actual login route
+            "/login",  
             data={
                 "username": self.username,
                 "password": self.password

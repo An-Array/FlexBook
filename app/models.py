@@ -2,8 +2,9 @@ from sqlalchemy import String, Integer, text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from datetime import datetime
-from .database import Base
 from typing import List
+from .roles import Role
+from .database import Base
 
 
 # User Model
@@ -14,11 +15,11 @@ class User(Base):
   email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
   password: Mapped[str] = mapped_column(String, nullable=False)
   created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
-  role: Mapped[str] = mapped_column(String, nullable=False, server_default="user")
+  role: Mapped[str] = mapped_column(String, nullable=False, server_default=Role.USER.value)
   venues: Mapped[List["Venue"]] = relationship("Venue", back_populates="owner", cascade="all, delete-orphan")
 
   def __repr__(self):
-    return f"<User(user_id={self.id}, email={self.email})>"
+    return f"<User(user_id={self.id}, email={self.email}, role={self.role})>"
   
 
 # Venue Model
