@@ -1,6 +1,5 @@
-from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+
+from pydantic import BaseModel
 
 class Token(BaseModel):
   access_token: str

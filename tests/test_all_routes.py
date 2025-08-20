@@ -1,3 +1,4 @@
+# TO RUN: pytest -v (in root - auto detects the file if starting or ending with {test_ / _test})
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -10,9 +11,8 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.main import app  # Make sure your main FastAPI app instance is named 'app'
-from app.database import Base, get_db
-from app import models
-from app.config import settings
+from app.db import Base, get_db, settings
+from app.db import models
 
 
 # --- Test Database Setup ---

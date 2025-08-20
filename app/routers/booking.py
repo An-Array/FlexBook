@@ -1,11 +1,10 @@
 from typing import List
 from fastapi import Depends, APIRouter, status, HTTPException, Response
-from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from ..schemas import booking_schemas
-from ..database import get_db
-from ..utils import oauth2
-from .. import models, services, permissions, roles
+from app.db import get_db, Role, models
+from app.schemas import booking_schemas
+from app.utils import get_current_user, admin_required
+from app import services
 
 
 router = APIRouter(
@@ -13,10 +12,9 @@ router = APIRouter(
   tags=["Booking Routers"]
 )
 
-
-
+# POST - Booking venue (ACCESS - TO ALL)
 @router.post("/", response_model=booking_schemas.BookingOutId, status_code=status.HTTP_201_CREATED)
-def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_db), current_user: int = Depends(get_current_user)):
   try:
     # Validates the venue (if it exists or not)
     venue = db.get(models.Venue, booking.venue_id)
@@ -43,25 +41,28 @@ def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_d
     db.rollback()
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could Not Create Booking")
 
+# GET - All bookings details (ACCESS - ONLY ADMIN)
 @router.get("/", response_model=List[booking_schemas.BookingOut])
-def get_all_bookings(db:Session=Depends(get_db), admin = Depends(permissions.admin_required)):
+def get_all_bookings(db:Session=Depends(get_db), admin = Depends(admin_required)):
   bookings_db = db.query(models.Booking).all()
   return bookings_db
 
+# GET - Bookings details by ID (ACCESS - USERS & OWNERS (Own Bookings), ADMIN (ALL BOOKINGS))
 @router.get("/{id}", response_model=booking_schemas.BookingOutId)
-def get_booking_details(id: int, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def get_booking_details(id: int, db:Session = Depends(get_db), current_user: int = Depends(get_current_user)):
   booking_db = db.get(models.Booking, id)
   if not booking_db:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Such Booking Exists!")
   # RBAC_ADMIN
-  if current_user.role == roles.Role.ADMIN.value:
+  if current_user.role == Role.ADMIN.value:
     return booking_db
   if booking_db.customer_id != current_user.id:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized!")
   return booking_db
 
+# PUT - Update Booking Details (ACCESS - USERS & OWNERS (Own Bookings), ADMIN (ALL BOOKINGS))
 @router.put("/{id}", response_model=booking_schemas.BookingOutId, status_code=status.HTTP_202_ACCEPTED)
-def update_booking_details(id:int, booking: booking_schemas.BookingUpdate, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def update_booking_details(id:int, booking: booking_schemas.BookingUpdate, db:Session = Depends(get_db), current_user: int = Depends(get_current_user)):
   booking_db = db.get(models.Booking, id)
   print(booking_db, booking)
   
@@ -69,7 +70,7 @@ def update_booking_details(id:int, booking: booking_schemas.BookingUpdate, db:Se
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Such Booking Exists!")
 
   # RBAC_ADMIN
-  if current_user.role == roles.Role.ADMIN.value:
+  if current_user.role == Role.ADMIN.value:
     if services.booking_conflict(db, booking_db.venue_id, booking):
       raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Venue Not Available for the given Time Period!")
     booking_data = booking.model_dump()
@@ -93,15 +94,15 @@ def update_booking_details(id:int, booking: booking_schemas.BookingUpdate, db:Se
   db.refresh(booking_db)
   return booking_db
 
-
+# DELETE - Delete Bookings (ACCESS - USERS & OWNERS (Own Bookings), ADMIN (ALL BOOKINGS))
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_bookings(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def delete_bookings(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
   booking_db = db.get(models.Booking, id)
   
   if not booking_db:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Such Booking Exists!")
   # RBAC_ADMIN
-  if current_user.role == roles.Role.ADMIN.value:
+  if current_user.role == Role.ADMIN.value:
     db.delete(booking_db)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

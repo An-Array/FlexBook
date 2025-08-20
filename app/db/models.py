@@ -3,9 +3,9 @@ from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from datetime import datetime
 from typing import List
-from .roles import Role
-from .database import Base
+from . import Base, Role
 
+# Based these MODELS Tables are created in Database (if not pre-existing)
 
 # User Model
 class User(Base):

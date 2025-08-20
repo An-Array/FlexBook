@@ -1,7 +1,8 @@
 from fastapi import Depends, HTTPException, status
-from .utils import oauth2
-from .roles import Role
+from app.utils import oauth2
+from app.db import Role
 
+# Verifies - Authentication (Access Token) & Authorization (RBAC)
 def require_role(*allowed_roles):
   def role_checker(current_user = Depends(oauth2.get_current_user)):
     if current_user.role not in allowed_roles:
@@ -12,7 +13,7 @@ def require_role(*allowed_roles):
 # Usage
 admin_required = require_role(Role.ADMIN)
 owner_or_admin_required = require_role(Role.OWNER, Role.ADMIN)
-user_or_owner_required = require_role(Role.USER, Role.OWNER)
+
 
 
 # PERMISSIONS = {

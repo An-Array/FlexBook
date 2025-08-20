@@ -30,6 +30,7 @@ class BookingBase(BaseModel):
       raise ValueError("Start time must be before End time!")
     return self
 
+
 class Booking(BookingBase):
   venue_id: int
 
@@ -44,7 +45,7 @@ class BookingOut(BaseModel):
   venue_id:int
   
   model_config = ConfigDict(from_attributes=True)
-  
+
 
 class BookingOutId(BookingOut):
   start_time: datetime

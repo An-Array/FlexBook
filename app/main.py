@@ -2,17 +2,18 @@ from fastapi import FastAPI, HTTPException, Request,status, exception_handlers
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from datetime import datetime, timezone
-from .routers import user, venue, booking
-from .database import engine
-from . import models
+from app.routers import user, venue, booking
+from app.db import engine
+from app.db import models
 
 
-
+# FastAPI instance
 app = FastAPI()
 
 # Creates Tables (if not present)
 models.Base.metadata.create_all(bind=engine)
 
+# routers from different files
 app.include_router(user.router)
 app.include_router(venue.router)
 app.include_router(booking.router)
@@ -26,8 +27,8 @@ async def validation_exception_handler(request: Request, exc: ValueError):
         content={"detail": str(exc.errors()[0]["msg"])}, 
     )
 
-
+# root
 @app.get("/")
 def root():
-  print(datetime.now())
-  return {"Message": "FastAPI works!!!", "time": datetime.now()}
+    print(datetime.now())
+    return {"Message": "FastAPI works!!!", "time": datetime.now()}
