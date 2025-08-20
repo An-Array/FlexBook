@@ -13,7 +13,7 @@ router = APIRouter(
 
 # Creation of Venues # RBAC -only OWNERS and ADMINS can add venues
 @router.post("/venues", response_model=venue_schemas.VenueOut, status_code=status.HTTP_201_CREATED) 
-def create_venue(venue: venue_schemas.VenueBase, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), admin = Depends(permissions.owner_or_admin_required)):
+def create_venue(venue: venue_schemas.VenueBase, db:Session = Depends(get_db), current_user= Depends(permissions.owner_or_admin_required)):
   new_venue = models.Venue(owner_id=current_user.id, **venue.model_dump() )
   print(new_venue.name, new_venue.owner_id)
   db.add(new_venue)
@@ -40,7 +40,7 @@ def get_venue_by_id(id: int, db:Session = Depends(get_db), current_user: int = D
 
 # UPDATE: Venue details --USERS/Owners can manage their own Venues -- # RBAC_ADMINS can change venue details
 @router.put("/venues/{id}", status_code=status.HTTP_202_ACCEPTED) 
-def update_venue(id: int, venue: venue_schemas.VenueUpdate, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), _ = Depends(permissions.owner_or_admin_required)):
+def update_venue(id: int, venue: venue_schemas.VenueUpdate, db:Session = Depends(get_db), current_user= Depends(permissions.owner_or_admin_required)):
   venue_db = db.get(models.Venue, id)
   if not venue_db:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Venue does not Exist!")
@@ -62,7 +62,7 @@ def update_venue(id: int, venue: venue_schemas.VenueUpdate, db:Session = Depends
 
 # Deletion of venues -- Owners can delete their venues TODO: # RBAC only OWNERS and ADMINS of the venues can delete venues 
 @router.delete("/venues/{id}", status_code=status.HTTP_204_NO_CONTENT) 
-def delete_venue(id: int, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), _=Depends(permissions.owner_or_admin_required)):
+def delete_venue(id: int, db:Session = Depends(get_db), current_user=Depends(permissions.owner_or_admin_required)):
   venue_db = db.get(models.Venue, id)
   if not venue_db:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Venue does not Exist!")

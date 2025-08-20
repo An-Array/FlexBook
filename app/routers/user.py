@@ -51,7 +51,8 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
 
 # Get all users -"user-role": Limited Data {Profile Data of current User} -"admin-role": Complete Data
 @router.get("/users", response_model=List[user_schemas.UserOut])
-def get_all_users(db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), admin = Depends(permissions.admin_required)):
+def get_all_users(db:Session = Depends(get_db), admin = Depends(permissions.admin_required)):
+  print(admin.id, admin.role)
   users = db.query(models.User).all()
   return users
 

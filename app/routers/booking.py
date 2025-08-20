@@ -44,7 +44,7 @@ def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_d
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could Not Create Booking")
 
 @router.get("/", response_model=List[booking_schemas.BookingOut])
-def get_all_bookings(db:Session=Depends(get_db), current_user: int = Depends(oauth2.get_current_user), admin = Depends(permissions.admin_required)):
+def get_all_bookings(db:Session=Depends(get_db), admin = Depends(permissions.admin_required)):
   bookings_db = db.query(models.Booking).all()
   return bookings_db
 
