@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..schemas import user_schemas, token_schemas
 from ..database import get_db
 from ..utils import utils, oauth2
-from .. import models
+from .. import models, permissions, roles
 
 router = APIRouter(
   tags=["User Routers"]
@@ -51,7 +51,8 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
 
 # Get all users -"user-role": Limited Data {Profile Data of current User} -"admin-role": Complete Data
 @router.get("/users", response_model=List[user_schemas.UserOut])
-def get_all_users(db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def get_all_users(db:Session = Depends(get_db), admin = Depends(permissions.admin_required)):
+  print(admin.id, admin.role)
   users = db.query(models.User).all()
   return users
 
@@ -62,6 +63,11 @@ def get_user_by_id(id: int, db:Session = Depends(get_db), current_user:int = Dep
   # if User Doesnt Exists
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not Exist!")
+  # RBAC_ADMIN
+  if current_user.role == roles.Role.ADMIN.value:
+    return user
+  if current_user.id != id:
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not Authorized!")
   return user
 
 # Update User
@@ -73,6 +79,18 @@ def update_user(id: int, user: user_schemas.UserUpdate, db: Session = Depends(ge
   # Checking if User Exists
   if not user_db:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user_id: {id} Doesn't Exist!")
+  # RBAC_ADMIN
+  if current_user.role == roles.Role.ADMIN.value:
+    if db.scalar(select(models.User).where(models.User.email == user.email)):
+      raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"User with this Email already exists!")
+    user_update = user.model_dump(exclude_unset=True)
+    if "password" in user_update:
+      user_update["password"] = utils.hash(user_update["password"])
+    for k, v in user_update.items():
+      setattr(user_db, k, v)
+    db.commit()
+    db.refresh(user_db)
+    return user_db
   # user is authorized to update his account only
   if user_db.id != current_user.id:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
@@ -98,8 +116,12 @@ def delete_user(id: int, db:Session = Depends(get_db), current_user: int = Depen
   # Checking if User Exists
   if not deletion_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user_id: {id} Doesn't Exist!")
+    # RBAC_ADMIN
+  if current_user.role == roles.Role.ADMIN.value:
+    db.delete(deletion_user)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
   # user is authorized to delete his account only
-  print(deletion_user.id, current_user.id)
   if deletion_user.id != current_user.id:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
   print(deletion_user)
