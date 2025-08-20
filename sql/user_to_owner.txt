@@ -1,0 +1,13 @@
+# For converting USER to OWNER based on VENUE count
+
+```
+WITH owners as (select u.id from users u JOIN 
+(select owner_id 
+from venues 
+group by owner_id HAVing COUNT(*)>0)v
+ON u.id = v.owner_id WHERE
+u.role like '%user%')
+
+UPDATE users SET role = 'owner'
+WHERE id IN (SELECT id FROM owners);
+```
