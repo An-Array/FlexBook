@@ -1,14 +1,12 @@
 # --- Core Application Dependencies ---
-
 fastapi
 uvicorn
 sqlalchemy
-alembic  # Database migrations
+alembic
 psycopg2-binary
-pydantic
 pydantic[email]
 pydantic-settings
 python-dotenv
-passlib[bcrypt]  # Includes bcrypt for password hashing
-python-jose[cryptography]  # Includes cryptography for JWTs
-python-multipart  # Required for OAuth2PasswordRequestForm (form data)
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
