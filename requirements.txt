@@ -6,6 +6,7 @@ sqlalchemy
 alembic  # Database migrations
 psycopg2-binary
 pydantic
+pydantic[email]
 pydantic-settings
 python-dotenv
 passlib[bcrypt]  # Includes bcrypt for password hashing
