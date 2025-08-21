@@ -14,6 +14,10 @@ from app.main import app  # Make sure your main FastAPI app instance is named 'a
 from app.db import Base, get_db, settings
 from app.db import models
 
+# Constants to by-pass Constraints Checking of Pydantic validators
+now = datetime.now(timezone.utc)
+minute = 0 if now.minute < 30 else 30
+
 
 # --- Test Database Setup ---
 # Use a separate database for testing (e.g., flexbook_test)
@@ -144,8 +148,8 @@ def test_venue(client, test_users):
 
 def test_create_booking(client, test_users, test_venue):
     user_token = get_token("user@example.com", "password123", client)
-    start_time = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
-    end_time = (datetime.now(timezone.utc) + timedelta(days=1, hours=1)).isoformat()
+    start_time = (now.replace(minute=minute, second=0, microsecond=0) + timedelta(days=1)).isoformat()
+    end_time = (datetime.fromisoformat(start_time) + timedelta(days=1, hours=1)).isoformat()
 
     booking_data = {
         "venue_id": test_venue["id"],
@@ -158,23 +162,23 @@ def test_create_booking(client, test_users, test_venue):
 
 def test_booking_conflict(client, test_users, test_venue):
     user_token = get_token("user@example.com", "password123", client)
-    start_time = (datetime.now(timezone.utc) + timedelta(days=2)).isoformat()
-    end_time = (datetime.now(timezone.utc) + timedelta(days=2, hours=2)).isoformat()
+    start_time = (now.replace(minute=minute, second=0, microsecond=0) + timedelta(days=2)).isoformat()
+    end_time = (datetime.fromisoformat(start_time) + timedelta(hours=2)).isoformat()
 
     # First booking
     res1 = client.post("/bookings/", json={"venue_id": test_venue["id"], "start_time": start_time, "end_time": end_time}, headers={"Authorization": f"Bearer {user_token}"})
     assert res1.status_code == 201
 
     # Conflicting booking
-    conflict_start = (datetime.now(timezone.utc) + timedelta(days=2, hours=1)).isoformat()
-    conflict_end = (datetime.now(timezone.utc) + timedelta(days=2, hours=3)).isoformat()
+    conflict_start = (now.replace(minute=minute, second=0, microsecond=0) + timedelta(days=2, hours=1)).isoformat()
+    conflict_end = (datetime.fromisoformat(start_time) + timedelta(hours=3)).isoformat()
     res2 = client.post("/bookings/", json={"venue_id": test_venue["id"], "start_time": conflict_start, "end_time": conflict_end}, headers={"Authorization": f"Bearer {user_token}"})
     assert res2.status_code == 409 # Conflict
 
 def test_get_own_booking_details(client, test_users, test_venue):
     user_token = get_token("user@example.com", "password123", client)
-    start_time = (datetime.now(timezone.utc) + timedelta(days=3)).isoformat()
-    end_time = (datetime.now(timezone.utc) + timedelta(days=3, hours=1)).isoformat()
+    start_time = (now.replace(minute=minute, second=0, microsecond=0) + timedelta(days=3)).isoformat()
+    end_time = (datetime.fromisoformat(start_time) + timedelta(hours=1)).isoformat()
     booking_res = client.post("/bookings/", json={"venue_id": test_venue["id"], "start_time": start_time, "end_time": end_time}, headers={"Authorization": f"Bearer {user_token}"})
     assert booking_res.status_code == 201
     booking_id = booking_res.json()["id"]
@@ -187,8 +191,8 @@ def test_get_others_booking_details_as_user(client, test_users, test_venue):
     user_token = get_token("user@example.com", "password123", client)
     owner_token = get_token("owner@example.com", "password123", client)
 
-    start_time = (datetime.now(timezone.utc) + timedelta(days=4)).isoformat()
-    end_time = (datetime.now(timezone.utc) + timedelta(days=4, hours=1)).isoformat()
+    start_time = (now.replace(minute=minute, second=0, microsecond=0) + timedelta(days=4)).isoformat()
+    end_time = (datetime.fromisoformat(start_time) + timedelta(hours=1)).isoformat()
     booking_res = client.post("/bookings/", json={"venue_id": test_venue["id"], "start_time": start_time, "end_time": end_time}, headers={"Authorization": f"Bearer {user_token}"})
     assert booking_res.status_code == 201
     booking_id = booking_res.json()["id"]

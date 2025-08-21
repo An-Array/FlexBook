@@ -21,7 +21,7 @@ app.include_router(booking.router)
 
 # This handler will catch ValueErrors from Pydantic models
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: ValueError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"detail": str(exc.errors()[0]["msg"])}, 
