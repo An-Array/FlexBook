@@ -3,7 +3,7 @@ from fastapi import Depends, Response, status, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
-from app.db import get_db, Role, models
+from app.db import get_db, Role, models,settings
 from app.schemas import user_schemas, token_schemas
 from app.utils import admin_required, hash, verify, get_current_user, create_access_token
 
@@ -125,3 +125,17 @@ def delete_user(id: int, db:Session = Depends(get_db), current_user: int = Depen
   db.delete(deletion_user)
   db.commit()
   return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.put("/panel")
+def admin_panel(rc: user_schemas.RolePanel, db:Session=Depends(get_db)):
+  if rc.panel_key != settings.panel_key:
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized")
+  db_q = db.query(models.User).filter(models.User.id == rc.user_id)
+  if not db_q.first():
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user_id: {rc.user_id} Doesn't Exist!")
+  print(db_q.first().role)
+  db_q.update({"role":rc.role}, synchronize_session = False)
+  db.commit()
+  db.refresh(db_q.first())
+  return {'message': f'changes were Successful! {rc.user_id} is now a {rc.role}'}

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
   secret_key: str
   algorithm: str
   access_token_expire_minutes: int
+  panel_key: str
 
   # Pydantic v2 CONFIG (Auto fills the data from .env)
   model_config = SettingsConfigDict(env_file = ".env")

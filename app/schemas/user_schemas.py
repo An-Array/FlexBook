@@ -15,6 +15,11 @@ class UserCreate(UserBase):
 class UserLogin(UserBase):
   password: str
 
+class RolePanel(BaseModel):
+  user_id: int
+  panel_key: str
+  role: str
+
 class UserUpdate(BaseModel):
   email: EmailStr | None = None
   password: str | None = None
