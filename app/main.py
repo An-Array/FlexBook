@@ -11,7 +11,7 @@ from app.db import models
 app = FastAPI()
 
 # Creates Tables (if not present)
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine) # Using Alembic instead
 
 # routers from different files
 app.include_router(user.router)
