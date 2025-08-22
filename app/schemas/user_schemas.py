@@ -35,3 +35,6 @@ class UserOut(BaseModel):
     return v.replace(second=0, microsecond=0).isoformat()
 
   model_config = ConfigDict(from_attributes=True)
+
+class UserAllOut(UserOut):
+  role: str

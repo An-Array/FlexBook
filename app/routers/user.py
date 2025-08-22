@@ -49,7 +49,7 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
   return {"access_token": access_token, "token_type": "bearer"}
 
 # GET - All users details (ACCESS - ONLY ADMIN)
-@router.get("/users", response_model=List[user_schemas.UserOut])
+@router.get("/users", response_model=List[user_schemas.UserAllOut])
 def get_all_users(db:Session = Depends(get_db), admin = Depends(admin_required)):
   print(admin.id, admin.role)
   users = db.query(models.User).all()

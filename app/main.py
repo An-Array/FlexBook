@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request,status, exception_handlers
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from app.routers import user, venue, booking
 from app.db import engine
@@ -9,6 +10,20 @@ from app.db import models
 
 # FastAPI instance
 app = FastAPI()
+
+origins= [
+    "http://192.168.29.200:8501/",
+    "http://localhost:8501/"
+]
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=origins,
+  allow_credentials=True,
+  allow_methods=['*'],
+  allow_headers=['*']
+)
+
 
 # Creates Tables (if not present)
 # models.Base.metadata.create_all(bind=engine) # Using Alembic instead
