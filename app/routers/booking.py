@@ -9,7 +9,7 @@ from app import services
 
 router = APIRouter(
   prefix="/bookings",
-  tags=["Booking Routers"]
+  tags=["Booking"]
 )
 
 # POST - Booking venue (ACCESS - TO ALL)

@@ -7,7 +7,7 @@ from app.utils import admin_required, owner_or_admin_required, get_current_user
 
 
 router = APIRouter(
-  tags=["Venue Routers"]
+  tags=["Venue"]
 )
 
 # POST - Adding Venues to DB (ACCESS - OWNERS (Own), ADMIN (ALL))

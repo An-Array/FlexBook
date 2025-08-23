@@ -8,7 +8,7 @@ from app.schemas import user_schemas, token_schemas
 from app.utils import admin_required, hash, verify, get_current_user, create_access_token
 
 router = APIRouter(
-  tags=["User Routers"]
+  tags=["User"]
 )
 
 # User Signup - Registeration, Password Hashing, Account Creation (ACCESS - TO ALL)
