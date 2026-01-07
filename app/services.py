@@ -8,5 +8,5 @@ def booking_conflict(db: Session, venue_id: int, new_booking) -> bool:
     models.Booking.start_time < new_booking.end_time,
     models.Booking.end_time > new_booking.start_time
     # Database row-locking is used to solve race-condition (.with_for_update())
-  ).with_for_update().first() 
+  ).first() 
   return conflict is not None

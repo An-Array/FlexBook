@@ -40,7 +40,7 @@ async def setup_test_users(client, num_users):
     """Create multiple test users for concurrent testing"""
     user_creation_tasks = []
     
-    for i in range(15, num_users+1):
+    for i in range(1, num_users+1):
         email = f"test_user_{i}@example.com"
         password = f"testpass123_{i}"
         task = create_test_user(email, password, client)

@@ -17,15 +17,16 @@ router = APIRouter(
 def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_db), current_user: int = Depends(get_current_user)):
   try:
     # Validates the venue (if it exists or not)
-    venue = db.get(models.Venue, booking.venue_id)
+    venue = db.query(models.Venue).filter(models.Venue.id == booking.venue_id).with_for_update().first()
     if not venue:
       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Venue Not Found!")
-    booking_db = models.Booking(customer_id = current_user.id, **booking.model_dump())
 
     #-- Booking Conflict Checker 
     if services.booking_conflict(db, booking.venue_id, booking):
       raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Venue Not Available for the given Time Period!")
     
+    booking_db = models.Booking(customer_id = current_user.id, **booking.model_dump())
+
     db.add(booking_db)
     db.flush()
     db.commit()
@@ -34,6 +35,7 @@ def create_booking(booking: booking_schemas.Booking,  db:Session = Depends(get_d
   
   except HTTPException:
     #Re-raises HTTPException from the code
+    db.rollback()
     raise
   
   except Exception:

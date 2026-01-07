@@ -7,12 +7,12 @@ USERS =  [
     (f"test_user_{i}@example.com", f"testpass123_{i}") for i in range(51)
 ]
 
-VENUE_ID = 40
+VENUE_ID = 1
 
 BOOKING_PAYLOAD = {
     "venue_id": VENUE_ID,
-    "start_time": "2025-09-19T10:00:00Z",
-    "end_time": "2025-09-19T11:00:00Z"
+    "start_time": "2025-10-19T10:00:00Z",
+    "end_time": "2025-10-19T11:00:00Z"
 }
 
 

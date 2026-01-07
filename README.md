@@ -7,6 +7,10 @@ FlexBook is a modern backend API for a resource booking platform that allows use
 
 This project provides the backend services for the FlexBook platform. It handles user authentication, venue management, and booking logic. The API is designed to be RESTful and provides a clear and consistent interface for client applications.
 
+## 🛠️ Architecture Diagram
+
+![Architecture Diagram](img/flexbook-ad.png)
+
 ## 🌐 Live Demo
 
 - **🎯 Frontend Application**: [https://flexbook-on.streamlit.app/](https://flexbook-on.streamlit.app/)
@@ -140,12 +144,19 @@ To run the test suite, use the following command:
 ```bash
 pytest
 ```
+- Result - Unit Testing (Pytest)
+
+![pytest-unit_test](img/flexbook-unit_test.png)
+
 
 ### Load Testing
 First, ensure the application is running, then:
 ```bash
 locust -f tests/race_condition.py --host http://127.0.0.1:8000
 ```
+- Result - Load Testing (Locust)
+
+![locust-load_test](img/flexbook-load_test.png)
 
 ## 🗄️ Database Management
 
