@@ -144,7 +144,7 @@ To run the test suite, use the following command:
 ```bash
 pytest
 ```
-- Result - Unit Testing (Pytest)
+- RESULT - Unit Testing (Pytest)
 
 ![pytest-unit_test](img/flexbook-unit_test.png)
 
@@ -154,9 +154,14 @@ First, ensure the application is running, then:
 ```bash
 locust -f tests/race_condition.py --host http://127.0.0.1:8000
 ```
-- Result - Load Testing (Locust)
+#### RESULT - Load Testing (Locust)
+To ensure system reliability under high traffic, we implemented strict concurrency control to prevent "double-booking" race conditions.
+- ***Implementation:*** Utilized *Pessimistic* locking to handle concurrent resource contention.
+- ***Validation:*** Stress-tested via Locust with 754 concurrent users.
+- ***Performance Metric:*** 0% duplicate booking rate; 1/754 success rate under extreme contention confirms successful transactional isolation.
 
 ![locust-load_test](img/flexbook-load_test.png)
+
 
 ## 🗄️ Database Management
 
